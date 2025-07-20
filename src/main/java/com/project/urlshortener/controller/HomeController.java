@@ -1,5 +1,6 @@
 package com.project.urlshortener.controller;
 
+import com.project.urlshortener.dto.ShortUrlDto;
 import com.project.urlshortener.entity.ShortUrl;
 import com.project.urlshortener.repository.ShortUrlRepository;
 import com.project.urlshortener.service.ShortUrlService;
@@ -21,7 +22,7 @@ public class HomeController {
 
     @GetMapping("/")
     public String showHomePage(Model model) {
-        List<ShortUrl> shortUrls = shortUrlService.findAllPublicUrls();
+        List<ShortUrlDto> shortUrls = shortUrlService.findAllPublicUrls();
         model.addAttribute("shortUrls",shortUrls);
         model.addAttribute("baseUrl","http://localhost:8080");
         return "index";
