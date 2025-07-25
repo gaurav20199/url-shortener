@@ -1,6 +1,6 @@
 package com.project.urlshortener.entity;
 
-import com.project.urlshortener.enums.Role;
+import com.project.urlshortener.utils.enums.Role;
 import jakarta.persistence.*;
 import org.hibernate.annotations.ColumnDefault;
 import java.time.Instant;
