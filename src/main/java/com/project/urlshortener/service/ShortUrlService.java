@@ -4,16 +4,18 @@ import com.project.urlshortener.ApplicationProperties;
 import com.project.urlshortener.dto.ShortUrlCommand;
 import com.project.urlshortener.dto.ShortUrlDto;
 import com.project.urlshortener.entity.ShortUrl;
+import com.project.urlshortener.exception.ExpiredUrl;
+import com.project.urlshortener.exception.InvalidUrl;
 import com.project.urlshortener.mapper.ShortUrlToDto;
 import com.project.urlshortener.repository.ShortUrlRepository;
 import com.project.urlshortener.utils.ShortUrlUtil;
 import com.project.urlshortener.utils.UrlValidator;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
-
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
@@ -44,9 +46,9 @@ public class ShortUrlService {
 
     @Transactional
     public ShortUrlDto createShortUrl(ShortUrlCommand shortUrlCommand) {
-        if(!UrlValidator.isUrlExists(shortUrlCommand.originalUrl())) {
-            throw new RuntimeException("Invalid URL. URL does not exist.");
-        }
+        if(!UrlValidator.isUrlExists(shortUrlCommand.originalUrl()))
+            throw new InvalidUrl(HttpStatus.BAD_REQUEST,"Invalid URL. URL does not exist.");
+
         ShortUrl shortUrl = new ShortUrl();
         String shortUrlKey = generateUniqueShortKey();
         shortUrl.setOriginalUrl(shortUrlCommand.originalUrl());
@@ -65,11 +67,11 @@ public class ShortUrlService {
         Optional<ShortUrl> shortUrlOptional = shortUrlRepository.findByShortKey(shorUrl);
 
         if(shortUrlOptional.isEmpty())
-            throw new RuntimeException("Invalid Short URL...");
+            throw new InvalidUrl(HttpStatus.BAD_REQUEST,"Invalid Short URL...");
 
         ShortUrl shortUrl = shortUrlOptional.get();
         if(shortUrl.getExpiresAt()!=null && shortUrl.getExpiresAt().isBefore(Instant.now()))
-            throw new RuntimeException("Short URL is expired...");
+            throw new ExpiredUrl(HttpStatus.GONE,"Short URL is expired...");
 
         shortUrl.setClickCount(shortUrl.getClickCount()+1);
         shortUrlRepository.save(shortUrl);

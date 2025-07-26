@@ -1,0 +1,58 @@
+body {
+    background: linear-gradient(135deg, #f5f7fa, #c3cfe2); /* Soft gradient */
+    font-family: 'Poppins', sans-serif; /* Modern font */
+    text-align: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+}
+
+.error-container {
+    background: white;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+    max-width: 500px;
+    text-align: center;
+}
+
+h1 {
+    font-size: 28px;
+    color: #333;
+    font-weight: 600;
+}
+
+.emoji {
+    font-size: 40px;
+}
+
+.error-message {
+    font-size: 16px;
+    color: #555;
+    margin-top: 10px;
+}
+
+.error-code {
+    font-size: 18px;
+    font-weight: 500;
+    color: #d9534f;
+}
+
+.button {
+    background: #ff5722;
+    color: white;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: 0.3s;
+    margin-top: 15px;
+}
+
+.button:hover {
+    background: #e64a19;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2);
+}
