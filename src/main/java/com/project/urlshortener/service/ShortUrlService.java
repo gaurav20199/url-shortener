@@ -10,6 +10,9 @@ import com.project.urlshortener.mapper.ShortUrlToDto;
 import com.project.urlshortener.repository.ShortUrlRepository;
 import com.project.urlshortener.utils.ShortUrlUtil;
 import com.project.urlshortener.utils.UrlValidator;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import java.time.Instant;
@@ -32,8 +35,10 @@ public class ShortUrlService {
         this.applicationProperties = properties;
     }
 
-    public List<ShortUrlDto> findAllPublicUrls() {
-        return shortUrlRepository.findAllPublicUrls().stream().map(shortUrlToDto::convertToDto).toList();
+    public List<ShortUrlDto> findAllPublicUrls(int pageNumber, int pageSize) {
+        pageNumber = pageNumber>1?pageNumber-1:0;
+        Pageable pageable = PageRequest.of(pageNumber,pageSize, Sort.by(Sort.Direction.DESC, "createdAt"));
+        return shortUrlRepository.findAllPublicUrls(pageable).map(shortUrlToDto::convertToDto).toList();
     }
 
     private String generateUniqueShortKey() {

@@ -4,11 +4,8 @@ import com.project.urlshortener.ApplicationProperties;
 import com.project.urlshortener.dto.ShortUrlCommand;
 import com.project.urlshortener.dto.ShortUrlDto;
 import com.project.urlshortener.dto.UrlForm;
-import com.project.urlshortener.entity.ShortUrl;
-import com.project.urlshortener.repository.ShortUrlRepository;
 import com.project.urlshortener.service.ShortUrlService;
 import jakarta.validation.Valid;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -28,12 +25,16 @@ public class HomeController {
         this.applicationProperties = applicationProperties;
     }
 
-    @GetMapping("/")
-    public String showHomePage(Model model) {
-        List<ShortUrlDto> shortUrls = shortUrlService.findAllPublicUrls();
+    private void addToModel(Model model, int page) {
+        List<ShortUrlDto> shortUrls = shortUrlService.findAllPublicUrls(page,applicationProperties.pageSize());
         model.addAttribute("shortUrls",shortUrls);
-        model.addAttribute("baseUrl","http://localhost:8080");
+        model.addAttribute("baseUrl",applicationProperties.baseUrl());
         model.addAttribute("isPublic",true);
+    }
+
+    @GetMapping("/")
+    public String showHomePage(@RequestParam(defaultValue = "1") Integer page, Model model) {
+        addToModel(model,page);
         model.addAttribute("urlInputForm",new UrlForm(""));
         return "index";
     }
@@ -42,10 +43,7 @@ public class HomeController {
     public String createShortUrl(@ModelAttribute("urlInputForm") @Valid UrlForm urlForm, BindingResult bindingResult,
                                  RedirectAttributes attributes, Model model) {
         if(bindingResult.hasErrors()){
-            List<ShortUrlDto> shortUrls = shortUrlService.findAllPublicUrls();
-            model.addAttribute("shortUrls",shortUrls);
-            model.addAttribute("baseUrl",applicationProperties.baseUrl());
-            model.addAttribute("isPublic",true);
+            addToModel(model,1);
             return "index";
         }
         try {
