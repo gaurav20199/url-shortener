@@ -5,6 +5,7 @@ import com.project.urlshortener.dto.PageResult;
 import com.project.urlshortener.dto.ShortUrlCommand;
 import com.project.urlshortener.dto.ShortUrlDto;
 import com.project.urlshortener.entity.ShortUrl;
+import com.project.urlshortener.entity.User;
 import com.project.urlshortener.exception.ExpiredUrl;
 import com.project.urlshortener.exception.InvalidUrl;
 import com.project.urlshortener.mapper.ShortUrlToDto;
@@ -60,7 +61,7 @@ public class ShortUrlService {
         String shortUrlKey = generateUniqueShortKey();
         shortUrl.setOriginalUrl(shortUrlCommand.originalUrl());
         shortUrl.setCreatedAt(Instant.now());
-        if(!shortUrlCommand.user().isEmpty()) {
+        if(shortUrlCommand.user().isPresent()) {
             shortUrl.setCreatedBy(shortUrlCommand.user().get());
             shortUrl.setExpiresAt(Instant.now().plus(shortUrlCommand.expirationInDays(), ChronoUnit.DAYS));
             shortUrl.setIsPrivate(shortUrlCommand.isPrivate()!=null && shortUrlCommand.isPrivate());
@@ -76,7 +77,7 @@ public class ShortUrlService {
     }
 
     @Transactional
-    public String getOriginalUrl(String shorUrl) {
+    public String getOriginalUrl(String shorUrl,Optional<User> authenticatedUser) {
         Optional<ShortUrl> shortUrlOptional = shortUrlRepository.findByShortKey(shorUrl);
 
         if(shortUrlOptional.isEmpty())
@@ -86,9 +87,23 @@ public class ShortUrlService {
         if(shortUrl.getExpiresAt()!=null && shortUrl.getExpiresAt().isBefore(Instant.now()))
             throw new ExpiredUrl(HttpStatus.GONE,"Short URL is expired...");
 
+        boolean isPrivate = isPrivateUrl(shortUrl.getIsPrivate());
+
+        if(isPrivate && !isUrlOwnedByUser(authenticatedUser,shortUrl))
+            throw new InvalidUrl(HttpStatus.UNAUTHORIZED,"You don't have sufficient permission(s) to access the url");
+
         shortUrl.setClickCount(shortUrl.getClickCount()+1);
         shortUrlRepository.save(shortUrl);
         return shortUrl.getOriginalUrl();
 
+    }
+
+    private boolean isPrivateUrl(Boolean isPrivate) {
+        return isPrivate != null && isPrivate;
+    }
+
+    public boolean isUrlOwnedByUser(Optional<User> authenticatedUser, ShortUrl shortUrl) {
+        return authenticatedUser.isPresent() && shortUrl.getCreatedBy() != null &&
+                authenticatedUser.get().getId().equals(shortUrl.getCreatedBy().getId());
     }
 }

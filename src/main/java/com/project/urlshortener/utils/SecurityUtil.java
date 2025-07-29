@@ -1,9 +1,7 @@
 package com.project.urlshortener.utils;
 
 import com.project.urlshortener.entity.User;
-import com.project.urlshortener.exception.InvalidUserDetails;
 import com.project.urlshortener.repository.UserRepository;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;

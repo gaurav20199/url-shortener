@@ -26,7 +26,8 @@ public class SecurityConfig {
                         defaultSuccessUrl("/").
                         permitAll()
                 ).authorizeHttpRequests(authorize ->authorize.
-                        requestMatchers("/error","/css/*","/js/*","/","/register","/login","/webjars/**").
+                        requestMatchers("/error","/css/*","/js/*","/","/register","/login","/webjars/**",
+                                "/s/**","/create/**").
                         permitAll().
                         requestMatchers("/admin/**").
                         hasRole("ADMIN").
