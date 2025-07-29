@@ -21,7 +21,7 @@ public class ShortUrlToDto {
         }
 
         return new ShortUrlDto(shortUrl.getShortKey(),shortUrl.getOriginalUrl(),shortUrl.getExpiresAt(),
-                userDto,shortUrl.getClickCount(),shortUrl.getCreatedAt());
+                userDto,shortUrl.getClickCount(),shortUrl.getCreatedAt(),shortUrl.getIsPrivate());
 
     }
 }

@@ -8,6 +8,7 @@ import com.project.urlshortener.entity.ShortUrl;
 import com.project.urlshortener.entity.User;
 import com.project.urlshortener.exception.ExpiredUrl;
 import com.project.urlshortener.exception.InvalidUrl;
+import com.project.urlshortener.exception.InvalidUserDetails;
 import com.project.urlshortener.mapper.ShortUrlToDto;
 import com.project.urlshortener.repository.ShortUrlRepository;
 import com.project.urlshortener.utils.ShortUrlUtil;
@@ -37,9 +38,13 @@ public class ShortUrlService {
         this.applicationProperties = properties;
     }
 
-    public PageResult<ShortUrlDto> findAllPublicUrls(int pageNumber, int pageSize) {
+    private Pageable getPageableObj(int pageNumber, int pageSize) {
         pageNumber = pageNumber>1?pageNumber-1:0;
-        Pageable pageable = PageRequest.of(pageNumber,pageSize, Sort.by(Sort.Direction.DESC, "createdAt"));
+        return PageRequest.of(pageNumber,pageSize, Sort.by(Sort.Direction.DESC, "createdAt"));
+    }
+
+    public PageResult<ShortUrlDto> findAllPublicUrls(int pageNumber, int pageSize) {
+        Pageable pageable = getPageableObj(pageNumber, pageSize);
         Page<ShortUrlDto> pageInfo = shortUrlRepository.findAllPublicUrls(pageable).map(shortUrlToDto::convertToDto);
         return PageResult.from(pageInfo);
     }
@@ -105,5 +110,14 @@ public class ShortUrlService {
     public boolean isUrlOwnedByUser(Optional<User> authenticatedUser, ShortUrl shortUrl) {
         return authenticatedUser.isPresent() && shortUrl.getCreatedBy() != null &&
                 authenticatedUser.get().getId().equals(shortUrl.getCreatedBy().getId());
+    }
+
+    public PageResult<ShortUrlDto> findAllPublicUrlsForUser(int page, Optional<User> authenticatedUser, int pageSize) {
+        if(authenticatedUser.isEmpty())
+            throw new InvalidUserDetails(HttpStatus.UNAUTHORIZED,"You don't have sufficient permissions to access this resource");
+        
+        Pageable pageableObj = getPageableObj(page, pageSize);
+        Page<ShortUrlDto> currentUserUrls = shortUrlRepository.findByCreatedById(authenticatedUser.get().getId(), pageableObj).map(shortUrlToDto::convertToDto);
+        return PageResult.from(currentUserUrls);
     }
 }

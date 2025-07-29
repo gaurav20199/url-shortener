@@ -29,16 +29,18 @@ public class HomeController {
         this.securityUtil = securityUtil;
     }
 
-    private void addToModel(Model model, int page) {
+    private void addToModel(Model model, int page, String paginationUrl) {
         PageResult<ShortUrlDto> shortUrls = shortUrlService.findAllPublicUrls(page,applicationProperties.pageSize());
         model.addAttribute("shortUrls",shortUrls);
         model.addAttribute("baseUrl",applicationProperties.baseUrl());
         model.addAttribute("isPublic",true);
+        model.addAttribute("paginationUrl", paginationUrl);
+
     }
 
     @GetMapping("/")
     public String showHomePage(@RequestParam(defaultValue = "1") Integer page, Model model) {
-        addToModel(model,page);
+        addToModel(model,page,"/");
         model.addAttribute("urlInputForm",new UrlForm("",null,false));
         return "index";
     }
@@ -47,7 +49,7 @@ public class HomeController {
     public String createShortUrl(@ModelAttribute("urlInputForm") @Valid UrlForm urlForm, BindingResult bindingResult,
                                  RedirectAttributes attributes, Model model) {
         if(bindingResult.hasErrors()){
-            addToModel(model,1);
+            addToModel(model,1,"/");
             return "index";
         }
         try {
