@@ -1,6 +1,7 @@
 package com.project.urlshortener.service;
 
 import com.project.urlshortener.ApplicationProperties;
+import com.project.urlshortener.dto.PageResult;
 import com.project.urlshortener.dto.ShortUrlCommand;
 import com.project.urlshortener.dto.ShortUrlDto;
 import com.project.urlshortener.entity.ShortUrl;
@@ -10,6 +11,7 @@ import com.project.urlshortener.mapper.ShortUrlToDto;
 import com.project.urlshortener.repository.ShortUrlRepository;
 import com.project.urlshortener.utils.ShortUrlUtil;
 import com.project.urlshortener.utils.UrlValidator;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -17,7 +19,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.List;
 import java.util.Optional;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -35,10 +36,11 @@ public class ShortUrlService {
         this.applicationProperties = properties;
     }
 
-    public List<ShortUrlDto> findAllPublicUrls(int pageNumber, int pageSize) {
+    public PageResult<ShortUrlDto> findAllPublicUrls(int pageNumber, int pageSize) {
         pageNumber = pageNumber>1?pageNumber-1:0;
         Pageable pageable = PageRequest.of(pageNumber,pageSize, Sort.by(Sort.Direction.DESC, "createdAt"));
-        return shortUrlRepository.findAllPublicUrls(pageable).map(shortUrlToDto::convertToDto).toList();
+        Page<ShortUrlDto> pageInfo = shortUrlRepository.findAllPublicUrls(pageable).map(shortUrlToDto::convertToDto);
+        return PageResult.from(pageInfo);
     }
 
     private String generateUniqueShortKey() {

@@ -1,6 +1,7 @@
 package com.project.urlshortener.controller;
 
 import com.project.urlshortener.ApplicationProperties;
+import com.project.urlshortener.dto.PageResult;
 import com.project.urlshortener.dto.ShortUrlCommand;
 import com.project.urlshortener.dto.ShortUrlDto;
 import com.project.urlshortener.dto.UrlForm;
@@ -26,7 +27,7 @@ public class HomeController {
     }
 
     private void addToModel(Model model, int page) {
-        List<ShortUrlDto> shortUrls = shortUrlService.findAllPublicUrls(page,applicationProperties.pageSize());
+        PageResult<ShortUrlDto> shortUrls = shortUrlService.findAllPublicUrls(page,applicationProperties.pageSize());
         model.addAttribute("shortUrls",shortUrls);
         model.addAttribute("baseUrl",applicationProperties.baseUrl());
         model.addAttribute("isPublic",true);
