@@ -60,10 +60,16 @@ public class ShortUrlService {
         String shortUrlKey = generateUniqueShortKey();
         shortUrl.setOriginalUrl(shortUrlCommand.originalUrl());
         shortUrl.setCreatedAt(Instant.now());
-        shortUrl.setExpiresAt(Instant.now().plus(applicationProperties.defaultExpiryInDays(), ChronoUnit.DAYS));
-        shortUrl.setCreatedBy(null);
+        if(!shortUrlCommand.user().isEmpty()) {
+            shortUrl.setCreatedBy(shortUrlCommand.user().get());
+            shortUrl.setExpiresAt(Instant.now().plus(shortUrlCommand.expirationInDays(), ChronoUnit.DAYS));
+            shortUrl.setIsPrivate(shortUrlCommand.isPrivate()!=null && shortUrlCommand.isPrivate());
+        }else {
+            shortUrl.setExpiresAt(Instant.now().plus(applicationProperties.defaultExpiryInDays(), ChronoUnit.DAYS));
+            shortUrl.setCreatedBy(null);
+            shortUrl.setIsPrivate(false);
+        }
         shortUrl.setClickCount(0L);
-        shortUrl.setIsPrivate(false);
         shortUrl.setShortKey(shortUrlKey);
         shortUrlRepository.save(shortUrl);
         return  shortUrlToDto.convertToDto(shortUrl);
