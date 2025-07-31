@@ -112,12 +112,18 @@ public class ShortUrlService {
                 authenticatedUser.get().getId().equals(shortUrl.getCreatedBy().getId());
     }
 
-    public PageResult<ShortUrlDto> findAllPublicUrlsForUser(int page, Optional<User> authenticatedUser, int pageSize) {
+    public PageResult<ShortUrlDto> findAllUrlsForUser(int page, Optional<User> authenticatedUser, int pageSize) {
         if(authenticatedUser.isEmpty())
             throw new InvalidUserDetails(HttpStatus.UNAUTHORIZED,"You don't have sufficient permissions to access this resource");
         
         Pageable pageableObj = getPageableObj(page, pageSize);
         Page<ShortUrlDto> currentUserUrls = shortUrlRepository.findByCreatedById(authenticatedUser.get().getId(), pageableObj).map(shortUrlToDto::convertToDto);
         return PageResult.from(currentUserUrls);
+    }
+
+    public PageResult<ShortUrlDto> findAllShortUrls(int page, int pageSize) {
+        Pageable pageable = getPageableObj(page, pageSize);
+        var shortUrlsPage =  shortUrlRepository.findAllShortUrls(pageable).map(shortUrlToDto::convertToDto);
+        return PageResult.from(shortUrlsPage);
     }
 }

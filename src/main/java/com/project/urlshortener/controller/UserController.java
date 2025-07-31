@@ -39,7 +39,7 @@ public class UserController {
     @GetMapping("/user/urls")
     public String showUrls(@RequestParam(defaultValue = "1") int page, Model model){
         Optional<User> authenticatedUser = securityUtil.getAuthenticatedUser();
-        PageResult<ShortUrlDto> urlsForCurrentUser = shortUrlService.findAllPublicUrlsForUser(page, authenticatedUser, properties.pageSize());
+        PageResult<ShortUrlDto> urlsForCurrentUser = shortUrlService.findAllUrlsForUser(page, authenticatedUser, properties.pageSize());
         model.addAttribute("shortUrls",urlsForCurrentUser);
         model.addAttribute("baseUrl",properties.baseUrl());
         model.addAttribute("paginationUrl","/user/urls");
